@@ -8,14 +8,14 @@ module Helpers
         integer         ::  ntimes = 1
         integer         ::  ncpus  = 1
     contains
-        procedure :: delta_t => timing_delta_t
+        procedure :: delta_t   => timing_delta_t
         procedure :: t_per_cpu => timing_t_per_cpu
     end type
     
 contains
 
     function timing_delta_t(tming, ntimes)
-        class(timing_t), intent(in)  ::  tming
+        type(timing_t), intent(in)   ::  tming
         real(rk_timing)              ::  timing_delta_t
         integer, optional            ::  ntimes
         integer                      ::  n
@@ -30,7 +30,7 @@ contains
     end function
 
     function timing_t_per_cpu(tming)
-        class(timing_t), intent(in)  ::  tming
+        type(timing_t), intent(in)   ::  tming
         real(rk_timing)              ::  timing_t_per_cpu
 
         timing_t_per_cpu = tming%delta_t() / tming%ncpus
@@ -72,7 +72,7 @@ contains
 
     subroutine print_timing( str, tcpu, treal )
         character(*),    intent(in)   ::  str
-        class(timing_t), intent(in)   ::  tcpu, treal
+        type(timing_t),  intent(in)   ::  tcpu, treal
 
         print "(a,3(a,f10.6))", str, &
                             " ||  elapsed time: ", treal%delta_t(), &
