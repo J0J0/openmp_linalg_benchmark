@@ -12,7 +12,6 @@ program test_it
     type(timing_t)      ::  tcpu, treal
     integer             ::  i
     integer, parameter  ::  min_vec_size = 10**6
-    real(rk_timing)     ::  overhead_correction
 
 
     character(9)        ::  arg
@@ -58,7 +57,6 @@ program test_it
     ! find the actual number of threads that
     ! will run concurrently
     tcpu%ncpus = min( omp_get_max_threads(), omp_get_num_procs() )
-    !treal%ncpus = tcpu%ncpus  ! currently not needed
 
     if( n == 0 .and. m == 0 ) then
         
@@ -160,8 +158,11 @@ program test_it
             end do
             treal%t1 = omp_get_wtime()
             call cpu_time(tcpu%t1)
-            overhead_correction = tcpu%delta_t(1)
-            !print *, "overhead_correction: ", overhead_correction
+
+            call  tcpu%set_own_correction()
+            call treal%set_own_correction()
+            !print *, "overhead correction cpu time: ", tcpu%correction
+            !print *, "overhead correction elapsed:  ", treal%correction
         end if
         
         opname = "daypx_do"
@@ -181,7 +182,6 @@ program test_it
             end do
             treal%t1 = omp_get_wtime()
             call cpu_time(tcpu%t1)
-            tcpu%t1 = tcpu%t1 - overhead_correction
         end if
         w = s*yy + x
         
@@ -211,6 +211,13 @@ program test_it
         
         call assert( opname, vec_eq(y,w) )
         call print_timing( opname, tcpu, treal )
+        
+        
+        if( tcpu%ntimes > 1 ) then
+            ! if we manipulated these settings reset it now
+            tcpu%correction  = 0.0
+            treal%correction = 0.0
+        end if
         
         ! end vector unit
     end if

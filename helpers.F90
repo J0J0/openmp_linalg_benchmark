@@ -7,9 +7,11 @@ module Helpers
         real(rk_timing) ::  t0, t1
         integer         ::  ntimes = 1
         integer         ::  ncpus  = 1
+        real(rk_timing) ::  correction = 0.0
     contains
-        procedure :: delta_t => timing_delta_t
+        procedure :: delta_t   => timing_delta_t
         procedure :: t_per_cpu => timing_t_per_cpu
+        procedure :: set_own_correction => timing_set_own_correction
     end type
     
 contains
@@ -26,7 +28,7 @@ contains
             n = tming%ntimes
         end if
         
-        timing_delta_t = (tming%t1 - tming%t0) / n
+        timing_delta_t = (tming%t1 - tming%correction - tming%t0) / n
     end function
 
     function timing_t_per_cpu(tming)
@@ -35,6 +37,12 @@ contains
 
         timing_t_per_cpu = tming%delta_t() / tming%ncpus
     end function
+    
+    subroutine timing_set_own_correction(tming)
+        class(timing_t), intent(inout)  ::  tming
+        
+        tming%correction = tming%t1 - tming%t0
+    end subroutine
     
     function vec_eq(x, y, prec)
         real(rk), intent(in)    ::  x(:), y(:)
