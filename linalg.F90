@@ -71,8 +71,8 @@ program test_it
         
         ! allocate and initialize vectors and matrices
         
-        allocate(   x(n), y(n), v(n), w(n), &
-                    A(m,m), B(m,m)  )
+        allocate(   x(n), y(n), v(n), w(n), yy(n), &
+                    A(m,m), B(m,m), C(m,m), D(m,m)  )
         
         call random_number(s)
         call random_number(x)
