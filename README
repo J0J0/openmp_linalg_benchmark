@@ -1,1 +1,4 @@
 a project for a university course "parallel programming in fortran and c/c++"
+
+This legacy branch derived from the need to run the code on computers of my university;
+unfortunately the installed compilers are way to old to compile the master branch. :/
