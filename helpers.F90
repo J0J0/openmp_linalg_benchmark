@@ -9,26 +9,34 @@ module Helpers
         integer         ::  ncpus  = 1
         real(rk_timing) ::  correction = 0.0
     contains
-        procedure :: delta_t   => timing_delta_t
-        procedure :: t_per_cpu => timing_t_per_cpu
-        procedure :: set_own_correction => timing_set_own_correction
+        procedure, pass :: delta_t   => timing_delta_t
+        procedure, pass :: t_per_cpu => timing_t_per_cpu
+        procedure, pass :: set_own_correction => timing_set_own_correction
     end type
     
 contains
+    
+    ! for reasons i didn't find out yet exactly present() always returns .true.
+    ! when used like in the non legacy version. The solution below is rather
+    ! ugly but it works for now ...
+    
+    function timing_delta_t(tming)
+        type(timing_t), intent(in)      ::  tming
+        real(rk_timing)                 ::  timing_delta_t
+        integer                         ::  n
+        
+        timing_delta_t = timing_delta_t_orig(tming, tming%ntimes)
+    end function
 
-    function timing_delta_t(tming, ntimes)
-        type(timing_t), intent(in)   ::  tming
-        real(rk_timing)              ::  timing_delta_t
-        integer, optional            ::  ntimes
-        integer                      ::  n
+    function timing_delta_t_orig(tming, ntimes)
+        type(timing_t), intent(in)      ::  tming
+        integer,        intent(in)      ::  ntimes
+        real(rk_timing)                 ::  timing_delta_t_orig
+        integer                         ::  n
         
-        if( present(ntimes) ) then
-            n = ntimes
-        else
-            n = tming%ntimes
-        end if
+        n = ntimes
         
-        timing_delta_t = (tming%t1 - tming%correction - tming%t0) / n
+        timing_delta_t_orig = (tming%t1 - tming%correction - tming%t0) / n
     end function
 
     function timing_t_per_cpu(tming)
@@ -39,7 +47,7 @@ contains
     end function
     
     subroutine timing_set_own_correction(tming)
-        class(timing_t), intent(inout)  ::  tming
+        type(timing_t), intent(inout)  ::  tming
         
         tming%correction = tming%t1 - tming%t0
     end subroutine
