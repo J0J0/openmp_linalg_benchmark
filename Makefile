@@ -2,17 +2,20 @@
 
 .PHONY : all clean cleanall underscorify starter benchmark cleanbenchmark plotbenchmark benchmarkandplot
 
-PROGRAMS = linalg
+PROGRAMS = linalg test_present
 
 FC     = gfortran
 GDEBUG = -g
 FOTHER =
 FFLAGS = $(GDEBUG) $(FOTHER) -fimplicit-none -fopenmp
 
-all : $(PROGRAMS) underscorify starter
+all : linalg underscorify starter
 
 
 linalg: operations.o helpers.o linalg.o
+	$(FC) $(FFLAGS) -o $@ $^
+
+test_present: test_present.o
 	$(FC) $(FFLAGS) -o $@ $^
 
 helpers.o: operations.o
